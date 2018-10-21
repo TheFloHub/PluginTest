@@ -19,142 +19,99 @@
 #pragma once
 
 #include "Core/CoreDll.h"
-#include <string>
-#include <typeinfo>
-#include <unordered_map>
-#include <vector>
-
-// TODO: pimpl? no std in interface
+#include <memory>
 
 class Component;
 
-class CORE_API SceneObject final
+class SceneObject final
 {
 public:
-  SceneObject();
+  CORE_API SceneObject();
 
-  SceneObject(std::string const & name);
+  CORE_API ~SceneObject();
 
-  ~SceneObject();
+  CORE_API SceneObject(SceneObject const &) = delete;
 
-  SceneObject(SceneObject const &) = delete;
+  CORE_API SceneObject & operator=(SceneObject const &) = delete;
 
-  SceneObject & operator=(SceneObject const &) = delete;
+  CORE_API SceneObject(SceneObject &&) = delete;
 
-  SceneObject(SceneObject &&) = delete;
-
-  SceneObject & operator=(SceneObject &&) = delete;
+  CORE_API SceneObject & operator=(SceneObject &&) = delete;
 
   /**
    * Adds the component to the scene object and commits ownership.
    * If the component could not be added the method returns false.
    */
-  bool addComponent(Component * pComponent);
+  CORE_API bool addComponent(Component * pComponent);
 
   /**
    * Removes the component from this scene object committing ownership to the
    * caller. Only call this, if you know what you're doing.
    */
-  void removeComponent(Component * pComponent);
+  CORE_API void removeComponent(Component * pComponent);
 
   /** Returns the component of the specific type or nullptr. */
-  template <class TComponent> TComponent * getComponent()
-  {
-    auto iter = m_components.find(typeid(TComponent).hash_code());
-    if (iter != std::end(m_components))
-    {
-      assert(dynamic_cast<TComponent *>(iter->second));
-      return static_cast<TComponent *>(iter->second);
-    }
-    return nullptr;
-  }
+  // template <class TComponent> TComponent * getComponent()
+  //{
+  //  auto iter = m_components.find(typeid(TComponent).hash_code());
+  //  if (iter != std::end(m_components))
+  //  {
+  //    assert(dynamic_cast<TComponent *>(iter->second));
+  //    return static_cast<TComponent *>(iter->second);
+  //  }
+  //  return nullptr;
+  //}
 
   /** Returns the component of the specific type or nullptr. */
-  template <class TComponent> TComponent const * getComponent() const
-  {
-    auto iter = m_components.find(typeid(TComponent).hash_code());
-    if (iter != std::end(m_components))
-    {
-      assert(dynamic_cast<TComponent *>(iter->second));
-      return static_cast<TComponent const *>(iter->second);
-    }
-    return nullptr;
-  }
+  // template <class TComponent> TComponent const * getComponent() const
+  //{
+  //  auto iter = m_components.find(typeid(TComponent).hash_code());
+  //  if (iter != std::end(m_components))
+  //  {
+  //    assert(dynamic_cast<TComponent *>(iter->second));
+  //    return static_cast<TComponent const *>(iter->second);
+  //  }
+  //  return nullptr;
+  //}
 
   /** Returns the parent scene object or nullptr. */
-  SceneObject * getParent();
+  CORE_API SceneObject * getParent();
 
   /** Returns the parent scene object or nullptr. */
-  SceneObject const * getParent() const;
+  CORE_API SceneObject const * getParent() const;
 
   /**
    * Adds the scene object as child and commits ownership.
    * If the child could not be added the method returns false.
    */
-  bool addChild(SceneObject * pChild);
+  CORE_API bool addChild(SceneObject * pChild);
 
   /** Updates all components and children with their components. */
-  void update(double deltaTime);
+  CORE_API void update(double deltaTime);
 
   /** Renders all components. */
-  void render() const;
+  CORE_API void render() const;
 
   /** Returns the number of children. */
-  size_t getNumberOfChildren() const;
+  CORE_API size_t getNumberOfChildren() const;
 
   /** Returns true if the node has no children. */
-  bool isLeafNode() const;
+  CORE_API bool isLeafNode() const;
 
   /** Return the child at the given index. Not boundary safe. */
-  SceneObject * getChild(size_t index);
+  CORE_API SceneObject * getChild(size_t index);
 
   /** Return the child at the given index. Not boundary safe. */
-  SceneObject const * getChild(size_t index) const;
-
-  /** Returns the first child with the given name. */
-  SceneObject * getChild(std::string const & name);
-
-  /** Returns the first child with the given name. */
-  SceneObject const * getChild(std::string const & name) const;
+  CORE_API SceneObject const * getChild(size_t index) const;
 
   /** Enables or disables the scene object. */
-  void setEnabled(bool isEnabled);
+  CORE_API void setEnabled(bool isEnabled);
 
   /** Returns true if the scene object is enabled. */
-  bool isEnabled() const;
-
-  /** Returns the name of the scene object. */
-  std::string const & getName() const;
+  CORE_API bool isEnabled() const;
 
 private:
-  /**
-   * Removes the child from this scene object committing ownership to the
-   * caller. Only call this, if you know what you're doing.
-   */
-  void removeChild(SceneObject * child);
-
-  /** Checks if the given node is a descendant of this scene object. */
-  bool isNodeDescendant(SceneObject const * pNode) const;
-
-  /** The name of this scene object. */
-  std::string m_name{};
-
-  /** The parent scene object. */
-  SceneObject * m_parent{nullptr};
-
-  /** The children scene objects. */
-  std::vector<SceneObject *> m_children{};
-
-  /**
-   * The map of all components. The key is a unique identifier
-   * of the component class. Thus only one instance of one
-   * specific component type is allowed, which is part of the concept.
-   */
-  std::unordered_map<size_t, Component *> m_components{};
-
-  /**
-   * If a scene object is disabled then its components as well as its children
-   * are neither updated nor rendered.
-   */
-  bool m_isEnabled{true};
+  class Impl;
+  friend class Impl;
+  std::unique_ptr<Impl> m_impl;
 };
