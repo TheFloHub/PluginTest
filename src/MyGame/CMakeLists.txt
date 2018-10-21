@@ -11,8 +11,7 @@ src/InputManager.cpp)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ./src ${OPENGL_INCLUDE_DIR})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENGL_LIBRARIES} glfw GLEW::GLEW)
-#target_link_libraries(${PROJECT_NAME} PRIVATE Core)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENGL_LIBRARIES} glfw GLEW::GLEW Core)
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 if(MSVC)

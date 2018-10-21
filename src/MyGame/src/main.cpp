@@ -1,6 +1,8 @@
 #include <GL/glew.h>
 #include <GL/GL.h>
 #include <GLFW/glfw3.h>
+#include <Core/SceneObject.h>
+#include <Core/Component.h>
 #include "InputManager.h"
 #include <chrono>
 #include <iostream>
